@@ -3,7 +3,7 @@ import os
 import torch
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 
-# Model files are in the same directory
+# Model files are in the same directory as this file
 MODEL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load label map
