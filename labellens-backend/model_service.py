@@ -3,15 +3,13 @@ import os
 import torch
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 
-# Path to your model files
-MODEL_PATH = r"C:\Users\niham\zzzlabellens\labellens_model\labellens_model"
+# Model files are in the same directory
+MODEL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Load label map
 with open(os.path.join(MODEL_PATH, "label_map.json"), "r") as f:
     label_map = json.load(f)
 
-# label_map is like {"0": "bad", "1": "good", "2": "moderate"}
-# We need int keys
 label_map = {int(k): v for k, v in label_map.items()}
 
 # Load tokenizer and model
@@ -19,7 +17,6 @@ tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
 model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
 model.eval()
 
-# Reasons for each status
 REASONS = {
     "good": "This ingredient is natural and safe for regular consumption.",
     "bad": "This ingredient is artificial or linked to potential health risks.",
@@ -28,7 +25,6 @@ REASONS = {
 
 
 def classify_ingredient(name: str) -> dict:
-    """Classify a single ingredient name using BERT model."""
     inputs = tokenizer(
         name,
         return_tensors="pt",
