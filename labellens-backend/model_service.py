@@ -1,0 +1,51 @@
+import json
+import os
+import torch
+from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
+
+# Path to your model files
+MODEL_PATH = r"C:\Users\niham\zzzlabellens\labellens_model\labellens_model"
+
+# Load label map
+with open(os.path.join(MODEL_PATH, "label_map.json"), "r") as f:
+    label_map = json.load(f)
+
+# label_map is like {"0": "bad", "1": "good", "2": "moderate"}
+# We need int keys
+label_map = {int(k): v for k, v in label_map.items()}
+
+# Load tokenizer and model
+tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
+model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+model.eval()
+
+# Reasons for each status
+REASONS = {
+    "good": "This ingredient is natural and safe for regular consumption.",
+    "bad": "This ingredient is artificial or linked to potential health risks.",
+    "moderate": "This ingredient is generally safe but may cause issues in large amounts.",
+}
+
+
+def classify_ingredient(name: str) -> dict:
+    """Classify a single ingredient name using BERT model."""
+    inputs = tokenizer(
+        name,
+        return_tensors="pt",
+        truncation=True,
+        max_length=64,
+        padding="max_length",
+    )
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        logits = outputs.logits
+        predicted_id = torch.argmax(logits, dim=1).item()
+
+    status = label_map[predicted_id]
+
+    return {
+        "name": name,
+        "status": status,
+        "reason": REASONS[status],
+    }
