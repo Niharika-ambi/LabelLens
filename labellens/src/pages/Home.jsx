@@ -24,7 +24,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('http://localhost:8001/scan', {
+      const res = await fetch('https://nihaniha76868-label-lens.hf.space/scan', {
         method: 'POST',
         body: formData,
       });
